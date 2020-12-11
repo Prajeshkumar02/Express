@@ -1,14 +1,8 @@
 const admin = require("firebase-admin");
-
+const path=require('path');
+const bodyParser=require('body-parser');
 const express=require('express');
 const app=express();
-
-app.get('/',(req,res)=>{
-    res.send('Hello !!!');
-});
-app.listen(5003,()=>{
-    console.log('Running');
-;})
 
 const serviceAccount={
     "type": "service_account",
@@ -28,12 +22,40 @@ const serviceAccount={
   });
 
   const db=admin.firestore();
-
- // db.collection('prajesh02').doc('Praj2715').get().then((data)=> console.log(data.data()));
- 
- db.collection('StudentDB').get().then((snapshot)=>{
-    console.log(snapshot);
-    snapshot.forEach((data)=> console.log(data));
+  
+  app.use(express.json());
+  app.post('/create',(request,response)=>{
+    let student= request.body;
+    db.collection('StudentDB').doc('StudentDetails4').set(student);
+    response.send("Created Successfully");
   });
-  //db.collection('prajesh02').doc('Praj2715').set('user').then(res=> console.log);
+  
+  app.get('/read',(request,response)=>
+  {
+    let id=request.query.id;
+    db.collection('StudentDB').doc(id).get().then((data)=>console.log(data.data()));
+    response.send("Data Obtained Successfully");
+  })
+
+  app.delete('/delete',(request,response)=>{
+    let id=request.query.id;
+    db.collection('StudentDB').doc(id).delete();
+    response.send("Deleted Successfully");
+  })
+
+  app.put('/update',(request,response)=>{
+    let id=request.query.id;
+    let newStudent=request.body;
+    db.collection('StudentDB').doc(id).update(newStudent);
+    response.send("Updated Successfully");
+  })
+
+  app.listen(5003,()=>{
+       console.log("Running at port 5003 ");
+   ;})
+
+
+
+
+
  
